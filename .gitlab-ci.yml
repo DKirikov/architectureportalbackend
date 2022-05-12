@@ -1,0 +1,12 @@
+include:
+  - project: 'thor/auto-devops'
+    file: .gitlab-azure-backend.yml
+
+variables:
+  CONTOUR_ID:
+    value: "infra"
+    description: "Specify target deployment instance ( ie. dev01az )"
+
+review on Azure:
+  environment:
+    url: https://architectureportalbackend${CONTOUR_ID}.gotrg.space

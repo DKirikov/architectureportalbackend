@@ -1,0 +1,52 @@
+livenessProbe:
+readinessProbe:
+
+application:
+  initializeWorkingDir: /app/migrator
+  migrateWorkingDir: /app/migrator
+
+service:
+  enabled: true
+  ## Use externalTrafficPolicy local to maintain real client's IP
+  externalTrafficPolicy: Local
+  internalPort: 80
+  externalPort: 80
+
+ingress:
+  enabled: true
+  tls:
+    enabled: true
+    secretName: gotrg.space-tls
+  additionalHostsRewriteRules:
+    - path: /service/(.+)
+      rewrite: /$1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 1
+    memory: 512Mi
+
+hpa:
+  enabled: false
+  maxReplicas: 2
+
+
+# Add additional volumes and mounts
+extraVolumeMounts: |
+  - name: keyvault
+    mountPath: /app/host/configs
+  - name: keyvault
+    mountPath: /app/migrator/configs
+extraVolumes: |
+  - name: keyvault
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "infra-keyvault01"
+
+labels:
+  aadpodidbinding: "infra-keyvault-pi"
